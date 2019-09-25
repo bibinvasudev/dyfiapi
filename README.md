@@ -34,3 +34,9 @@ Then install the packages with the command "python3 -m pip install -r requirment
 SyntaxError: Generator expression must be parenthesized
 
 
+Note- 
+
+The branch naming standard
+
+1. Branch name should start with the username eg- for user bibin - bibin-<AnyIdetifier>, for user nikesh - nikesh-<AnyIdetifier>
+2. The branch metapipeline is for testing the changes. and once its verified we will merge to master
