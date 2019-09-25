@@ -38,5 +38,6 @@ Note-
 
 The branch naming standard
 
-1. Branch name should start with the username eg- for user bibin - bibin-<AnyIdetifier>, for user nikesh - nikesh-<AnyIdetifier>
-2. The branch metapipeline is for testing the changes. and once its verified we will merge to master
+1. All user branch name should start with the username eg- for user bibin - bibin-<AnyIdetifier>, for user nikesh - nikesh-<AnyIdetifier>
+2. The branch metapipeline is for testing the changes and once its verified we will merge to master.
+   So please align your branch with metapipeline initially and create branch from metapipeline and merge to the same
