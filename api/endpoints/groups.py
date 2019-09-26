@@ -51,8 +51,11 @@ class GroupEndpoint(Endpoint):
     def list(self, request, *args, **kwargs):
         groups = Group.objects.all()
         response = []
-        for group in groups:
-            response.append({"id": str(group.id), "title": group.title, "level_title": group.level_id.title})
+        try:
+            for group in groups:
+               response.append({"id": str(group.id), "title": group.title, "level_title": group.level_id.title})
+        except:
+            pass
         return HTTPResponse(response)
 
     def retrieve(self, request, group_id=None):

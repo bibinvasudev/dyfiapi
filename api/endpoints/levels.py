@@ -35,8 +35,11 @@ class LevelEndpoint(Endpoint):
     def list(self, request, *args, **kwargs):
         levels = Level.objects.all()
         response = []
-        for level in levels:
-            response.append({"id": str(level.id), "title": level.title, "level_no": level.level_no})
+        try:
+            for level in levels:
+                response.append({"id": str(level.id), "title": level.title, "level_no": level.level_no})
+        except:
+            pass
         return HTTPResponse(response)
 
     def retrieve(self, request, level_id=None):

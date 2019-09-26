@@ -60,8 +60,11 @@ class MemberEndpoint(Endpoint):
         else:
             members = Member.objects.all()
         response = []
-        for member in members:
-            response.append({"id": str(member.id), "name": member.get_full_name()})
+        try:
+            for member in members:
+                response.append({"id": str(member.id), "name": member.get_full_name()})
+        except:
+            pass
         return HTTPResponse(response)
 
     def retrieve(self, request, member_id=None):
