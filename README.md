@@ -42,3 +42,42 @@ The branch naming standard
    After each change raise pull request with metapipeline
 2. The branch metapipeline is for testing the changes and once its verified we will merge to master.
    So please align your branch with metapipeline initially and create branch from metapipeline and and raise pull request to merge to metapipeline
+------------
+
+Added the following to connectingkerala/settings.py
+
+ALLOWED_HOSTS = ['139.59.37.100']
+
+
+For running in server use the following commands:
+
+python manage.py runserver 139.59.37.100:8000
+
+=============================================
+
+
+For actuall hosting in digitalocean please refer the link :
+
+https://www.digitalocean.com/community/tutorials/how-to-serve-django-applications-with-apache-and-mod_wsgi-on-ubuntu-16-04
+
+THe final /etc/apache2/sites-available/000-default.conf in the dyfiapi digitlocean server looks like:
+
+
+
+<VirtualHost *:80>
+
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/html
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+    <Directory /root/dyfiapi/connectingkerala>
+        <Files wsgi.py>
+            Require all granted
+        </Files>
+    </Directory>
+
+    WSGIDaemonProcess dyfiapi python-home=/root/virtualenv_dyfi_api python-path=/root/dyfiapi
+    WSGIProcessGroup dyfiapi
+    WSGIScriptAlias / /root/dyfiapi/connectingkerala/wsgi.py
+</VirtualHost>
