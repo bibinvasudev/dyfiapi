@@ -31,11 +31,11 @@ ALLOWED_HOSTS = ['139.59.37.100']
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
+    # 'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
+    # 'django.contrib.sessions',
+    # 'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_mongoengine',
@@ -53,6 +53,13 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'connectingkerala.urls'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ]
+}
 
 TEMPLATES = [
     {
@@ -121,3 +128,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+
+ADMIN_USERNAME = "admin"
+ADMIN_PASSWORD = "admin"

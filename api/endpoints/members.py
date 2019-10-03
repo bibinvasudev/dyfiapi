@@ -1,4 +1,7 @@
 from datetime import datetime
+import csv
+from collections import OrderedDict
+from django.http import HttpResponse
 
 from members.models import Member
 from levels.models import Level
@@ -14,14 +17,14 @@ class MemberEndpoint(Endpoint):
         data = dict(request.data)
         user = request.user
         level = Level.safe_get(data.get('level_id'))
-        group = Group.safe_get(data.get('group_id'))
+        groups = Group.objects.filter(id__in=data.get('group_ids'))
         member = Member()
-        name = Name(first=data.get('first_name'), middle=data.get('middle_name'), last=data.get('last_name'))
+        name = Name(first=data.get('first_name', ""), middle=data.get('middle_name', ""), last=data.get('last_name', ""))
         member.name = name
         member.dob = data.get("dob", None)
         member.mobile_no = data.get("mobile_no", None)
         member.level_id = level.to_dbref() if level else None
-        member.group_id = group.to_dbref() if group else None
+        member.group_ids = groups
         member.created_at = datetime.utcnow()
         member.created_by = user.to_dbref() if user.id else None
         member.save()
@@ -35,7 +38,7 @@ class MemberEndpoint(Endpoint):
         if not member:
             return HTTPResponse({"No such member found !"})
         level = Level.safe_get(data.get('level_id'))
-        group = Group.safe_get(data.get('group_id'))
+        groups = Group.objects.filter(id__in=data.get('group_ids'))
         if data.get('first_name', False):
             member.name.first = data.get('first_name')
         if data.get('middle_name', False):
@@ -46,8 +49,8 @@ class MemberEndpoint(Endpoint):
         member.dob = data.get('dob', member.dob)
         if level:
             member.level_id = level.to_dbref()
-        if group:
-            member.group_id = group.to_dbref()
+        if groups:
+            member.group_ids = groups
         member.updated_at = datetime.utcnow()
         member.updated_by = user.to_dbref() if user.id else None
         member.save()
@@ -60,11 +63,8 @@ class MemberEndpoint(Endpoint):
         else:
             members = Member.objects.all()
         response = []
-        try:
-            for member in members:
-                response.append({"id": str(member.id), "name": member.get_full_name()})
-        except:
-            pass
+        for member in members:
+            response.append({"id": str(member.id), "name": member.get_full_name()})
         return HTTPResponse(response)
 
     def retrieve(self, request, member_id=None):
@@ -106,3 +106,25 @@ class MemberEndpoint(Endpoint):
             return self.update(request, member_id=str(user.id))
         else:
             return HTTPResponse({"No such member found!"})
+
+
+def get_members_details(request):
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = "attachment; filename=MembersDetails.csv"
+    attributes = OrderedDict([('name.first', 'First Name'),
+                              ('name.last', 'Last Name'),
+                              ('age', 'Age'),
+                              ('gender', 'Gender'),
+                              ('mobile_no', 'Mobile No')])
+
+    csv_writer = csv.writer(response, csv.excel)
+    csv_writer.writerow([label for _, label in attributes.items()])
+    for member in Member.objects.all():
+        values = []
+        for attr, _ in attributes.items():
+            values.append(eval('member.' + attr))
+        csv_writer.writerow(values)
+    return response
+
+
+
