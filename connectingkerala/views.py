@@ -1,3 +1,4 @@
+import datetime
 from django.conf import settings
 from members.models import Member
 from core.helpers import Helper
@@ -36,17 +37,17 @@ class LoginView(viewsets.GenericViewSet):
                 return HTTPResponse(response)
             return HTTPResponse({"Not authorised"}, status=status.HTTP_401_UNAUTHORIZED)
         else:
-            member = Member(username=username_2, role="superuser", password=password_2_md5, mobile_no="00", name={"first": "admin", "last": "admin"})
+            member = Member(username=username_2, role="superuser", password=password_2_md5, dob="01/01/1990", mobile_no="00", name={"first": "admin", "last": "admin"})
             member.save()
         return HTTPResponse({"Not authorised"}, status=status.HTTP_401_UNAUTHORIZED)
 
     def login(self, request):
-        first_name = request.data.get('first_name', None)
         mobile_no = request.data.get('mobile_no', None)
-        if first_name and mobile_no:
-            members = Member.objects.filter(mobile_no=mobile_no, name__first=first_name)
+        dob = request.data.get('dob', None)
+        if mobile_no and dob:
+            members = Member.objects.filter(dob=dob, mobile_no=mobile_no)
             if len(members) > 0:
-                data = {"first_name": first_name, "mobile_no": mobile_no}
+                data = {"mobile_no": mobile_no, "dob": dob}
                 data.setdefault("aud", "kerala_aud")
 
                 token = jwt.encode(payload=data, algorithm='HS256', key='')

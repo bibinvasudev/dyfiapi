@@ -35,10 +35,10 @@ class Member(Document, CustomBaseDocument):
 
     @classmethod
     def get_registered_member(cls, payload):
-        first_name = payload.get("first_name", None)
         mobile_no = payload.get("mobile_no", None)
-        if first_name and mobile_no:
-            members = Member.objects.filter(mobile_no=mobile_no, name__first=first_name)
+        dob = payload.get("dob", None)
+        if mobile_no and dob:
+            members = Member.objects.filter(dob=dob, mobile_no=mobile_no)
             if len(members) > 0:
                 return members[0]
             return False
