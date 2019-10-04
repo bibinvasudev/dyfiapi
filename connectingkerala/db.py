@@ -3,7 +3,7 @@ from mongoengine.connection import disconnect
 
 __all__ = ('setup_connection',)
 
-DB_CONNECTION_STRING = "mongodb://localhost/conn_kerala"
+DB_CONNECTION_STRING = "mongodb://localhost/dyfi_db"
 DB_REPLICA_SET = {}
 
 

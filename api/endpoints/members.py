@@ -23,6 +23,7 @@ class MemberEndpoint(Endpoint):
         member.name = name
         member.dob = data.get("dob", None)
         member.mobile_no = data.get("mobile_no", None)
+        member.gender = data.get("gender", "male")
         member.level_id = level.to_dbref() if level else None
         member.group_ids = groups
         member.created_at = datetime.utcnow()
