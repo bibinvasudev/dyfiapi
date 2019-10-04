@@ -1,6 +1,7 @@
 import logging
 from pythonjsonlogger import jsonlogger
 from rest_framework import viewsets
+from core.auth.authenticate import TokenAuthenticate
 
 
 class Endpoint(viewsets.GenericViewSet):
@@ -14,6 +15,9 @@ class Endpoint(viewsets.GenericViewSet):
     def initial(self, request, *args, **kwargs):
         # get payload and validate
         super(Endpoint, self).initial(request, args, kwargs)
+        user = TokenAuthenticate.authenticate(request)
+        request.user = user
+
         # Write here to use `constructor`
         handler = logging.StreamHandler()
         handler.setFormatter(jsonlogger.JsonFormatter())
