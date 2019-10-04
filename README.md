@@ -81,3 +81,79 @@ THe final /etc/apache2/sites-available/000-default.conf in the dyfiapi digitloce
     WSGIProcessGroup dyfiapi
     WSGIScriptAlias / /root/dyfiapi/connectingkerala/wsgi.py
 </VirtualHost>
+
+
+ADI-DOC
+
+Groups
+1.	Login
+Request URL: http://localhost:8000/login
+Method: POST
+Request Payload: {“first_name”: “admin”, “mobile_no”: “00”}
+
+Response: {“token”: <jwt_token with first_name and mobile_no>}
+
+
+For every other request you have to pass this jwt token in the header as “Authorization”
+
+2.	Get Levels
+Request URL: http://localhost:8000/levels
+Method : GET
+
+3.	Create Group
+Request URL: http://localhost:8000/groups
+Method : POST
+Request Payload: 
+	{
+		"title": "K1",
+		"level_id": "5d87203f41dc466648dbd83d",
+		"parent_group_id": “5d87423241dc465e74ea74f9”
+	}
+4.	List Groups
+Request URL: http://localhost:8000/groups
+Method : GET
+5.	Get Group Details
+Request URL: http://localhost:8000/groups/<group_id>
+Method : GET
+
+6.	Update Group
+Request URL: http://localhost:8000/groups/<group_id>
+Method : PUT
+Request Payload: { “Title”: “K2”}
+
+7.	Delete Group
+Request URL: http://localhost:8000/groups/<group_id>
+Method : DELETE
+
+8.	Add Member
+
+Request URL: http://localhost:8000/members
+Method : POST
+Request Payload: 
+	{
+		"first_name": "Sachin",
+		“middle_name”: “Ramesh”
+		"last_name": "Tendulkar",
+		“mobile_no”: “98038402348”,
+		“dob”: “01/01/1990”,
+		“gender”: “male”,
+“level_id”: “5d87423241dc465e74ea74f9”
+		"group_ids": [“5d87423241dc465e74ea74f9”, “5d87423241dc465e74ea4545”]
+	}
+9.	List Members
+Request URL: http://localhost:8000/members
+Method : GET
+10.	Get Group Details
+Request URL: http://localhost:8000/members/<member_id>
+Method : GET
+
+11.	Update Group
+Request URL: http://localhost:8000/members/<member_id>
+Method : PUT
+Request Payload: { “middle_name”: “middlename”}
+
+12.	Delete Group
+Request URL: http://localhost:8000/members/<member_id>
+Method : DELETE
+
+
