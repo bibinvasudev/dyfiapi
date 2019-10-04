@@ -89,7 +89,7 @@ Groups
 1.	Login
 Request URL: http://localhost:8000/login
 Method: POST
-Request Payload: {“first_name”: “admin”, “mobile_no”: “00”}
+Request Payload: {“dob”: “01/01/1990”, “mobile_no”: “00”}
 
 Response: {“token”: <jwt_token with first_name and mobile_no>}
 
