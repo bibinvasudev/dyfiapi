@@ -76,7 +76,7 @@ class MemberEndpoint(Endpoint):
             "id": str(member.id),
             "name": member.get_full_name(),
             "mobile_no": member.mobile_no,
-            "dob": member.dob,
+            "dob": datetime.strftime(member.dob, "%d/%m/%Y"),
             "level_id": str(member.level_id.id) if member.level_id else "",
             "level_no": member.level_id.level_no if member.level_id else "",
             "level_title": member.level_id.title if member.level_id else "",
