@@ -44,12 +44,12 @@ class LoginView(viewsets.GenericViewSet):
 
     def login(self, request):
         mobile_no = request.data.get('mobile_no', None)
-        dob = request.data.get('dob', None)
-        if mobile_no and dob:
-            dob = datetime.datetime.strptime(dob, "%d/%m/%Y")
+        dob_str = request.data.get('dob', None)
+        if mobile_no and dob_str:
+            dob = datetime.datetime.strptime(dob_str, "%d/%m/%Y")
             members = Member.objects.filter(dob=dob, mobile_no=mobile_no)
             if len(members) > 0:
-                data = {"mobile_no": mobile_no, "dob": dob}
+                data = {"mobile_no": mobile_no, "dob": dob_str}
                 data.setdefault("aud", "kerala_aud")
 
                 token = jwt.encode(payload=data, algorithm='HS256', key='')
