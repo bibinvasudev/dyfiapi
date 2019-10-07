@@ -1,9 +1,8 @@
-
+import datetime
 from mongoengine import Document, EmbeddedDocument, StringField, DateTimeField, EmbeddedDocumentField, ReferenceField
 from mongoengine import ListField
 from mongoengine import IntField
 from core.models import CustomBaseDocument
-from core.helpers import Helper
 
 
 class Name(EmbeddedDocument):
@@ -36,8 +35,9 @@ class Member(Document, CustomBaseDocument):
     @classmethod
     def get_registered_member(cls, payload):
         mobile_no = payload.get("mobile_no", None)
-        dob = payload.get("dob", None)
-        if mobile_no and dob:
+        dob_str = payload.get("dob", None)
+        if mobile_no and dob_str:
+            dob = datetime.datetime.strptime(dob_str, "%d/%m/%Y")
             members = Member.objects.filter(dob=dob, mobile_no=mobile_no)
             if len(members) > 0:
                 return members[0]
