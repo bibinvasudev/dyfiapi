@@ -37,7 +37,8 @@ class LoginView(viewsets.GenericViewSet):
                 return HTTPResponse(response)
             return HTTPResponse({"Not authorised"}, status=status.HTTP_401_UNAUTHORIZED)
         else:
-            member = Member(username=username_2, role="superuser", password=password_2_md5, dob="01/01/1990", mobile_no="00", name={"first": "admin", "last": "admin"})
+            dob = datetime.datetime.strptime("01/01/1990", "%d/%m/%Y")
+            member = Member(username=username_2, role="superuser", password=password_2_md5, dob=dob, mobile_no="00", name={"first": "admin", "last": "admin"})
             member.save()
         return HTTPResponse({"Not authorised"}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -45,6 +46,7 @@ class LoginView(viewsets.GenericViewSet):
         mobile_no = request.data.get('mobile_no', None)
         dob = request.data.get('dob', None)
         if mobile_no and dob:
+            dob = datetime.datetime.strptime(dob, "%d/%m/%Y")
             members = Member.objects.filter(dob=dob, mobile_no=mobile_no)
             if len(members) > 0:
                 data = {"mobile_no": mobile_no, "dob": dob}
