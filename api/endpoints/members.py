@@ -17,15 +17,19 @@ class MemberEndpoint(Endpoint):
         data = dict(request.data)
         user = request.user
         level = Level.safe_get(data.get('level_id'))
-        groups = Group.objects.filter(id__in=data.get('group_ids'))
+        groups = Group.objects.filter(id__in=data.get('group_ids', []))
         member = Member()
         name = Name(first=data.get('first_name', ""), middle=data.get('middle_name', ""), last=data.get('last_name', ""))
         member.name = name
-        member.dob = data.get("dob", None)
-        member.mobile_no = data.get("mobile_no", None)
+        dob = data.get('dob', None)
+        if dob:
+            member.dob = datetime.strptime(dob, "%d/%m/%Y")
+        member.mobile_no = data.get("mobile_no", "")
         member.gender = data.get("gender", "male")
-        member.level_id = level.to_dbref() if level else None
-        member.group_ids = groups
+        if level:
+            member.level_id = level.to_dbref()
+        if groups:
+            member.group_ids = groups
         member.created_at = datetime.utcnow()
         member.created_by = user.to_dbref() if user.id else None
         member.save()
@@ -47,7 +51,9 @@ class MemberEndpoint(Endpoint):
         if data.get('last_name', False):
             member.name.last = data.get('last_name')
         member.mobile_no = data.get('mobile_no', member.mobile_no)
-        member.dob = data.get('dob', member.dob)
+        dob = data.get('dob', None)
+        if dob:
+            member.dob = datetime.strptime(dob, "%d/%m/%Y")
         if level:
             member.level_id = level.to_dbref()
         if groups:
