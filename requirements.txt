@@ -6,3 +6,4 @@ pymongo==2.8.1
 python-json-logger==0.1.2
 pytz==2019.2
 PyJWT==1.4.0
+django-cors-headers 3.1.1
