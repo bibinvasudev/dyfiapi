@@ -2,13 +2,15 @@ import datetime
 from mongoengine import Document, EmbeddedDocument, StringField, DateTimeField, EmbeddedDocumentField, ReferenceField
 from mongoengine import ListField
 from mongoengine import IntField
+from mongoengine import BooleanField
+from mongoengine import MultiLineStringField
 from core.models import CustomBaseDocument
 
 
 class Name(EmbeddedDocument):
     first = StringField(required=True, min_length=3)
     middle = StringField(default="", required=False)
-    last = StringField(default="")
+    last = StringField(required=True)
 
 
 class Member(Document, CustomBaseDocument):
@@ -17,15 +19,19 @@ class Member(Document, CustomBaseDocument):
     role = StringField()
     blood_group = StringField()
     qualification = StringField()
+    job = StringField()
+    email = StringField()
     image = StringField(default="")
     age = IntField()
     gender = StringField(choices=(('male', 'Male'), ('female', 'Female'), ('other', 'Other')))
     name = EmbeddedDocumentField(Name, required=True)
     dob = DateTimeField()
     mobile_no = StringField(required=True, unique_with="name.dob")
+    address = MultiLineStringField()
     group_ids = ListField(ReferenceField("Group"))
     group_id = ReferenceField("Group")
     level_id = ReferenceField("Level")
+    is_member_already = BooleanField(default=False)
     created_by = ReferenceField("Member")
     created_at = DateTimeField()
     updated_by = ReferenceField("Member")
