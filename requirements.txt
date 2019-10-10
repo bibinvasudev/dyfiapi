@@ -1,9 +1,14 @@
-django==1.11.17
+Django==1.11
 django-rest-framework-mongoengine==3.3.0
 djangorestframework==3.4.6
 mongoengine==0.9.0
+passlib==1.7.1
+PyJWT==1.7.1
 pymongo==2.8.1
+python-dateutil==2.8.0
 python-json-logger==0.1.2
 pytz==2019.2
-PyJWT==1.4.0
+PyYAML==5.1.2
+six==1.12.0
+sqlparse==0.3.0
 django-cors-headers 3.1.1
