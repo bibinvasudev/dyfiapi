@@ -19,12 +19,12 @@ class MemberEndpoint(Endpoint):
         level = Level.safe_get(data.get('level_id'))
         groups = Group.objects.filter(id__in=data.get('group_ids', []))
         member = Member()
-        name = Name(first=data.get('first_name', ""), middle=data.get('middle_name', ""), last=data.get('last_name', ""))
+        name = Name(first=data.get('first_name', None), middle=data.get('middle_name', ""), last=data.get('last_name', None))
         member.name = name
         dob = data.get('dob', None)
         if dob:
             member.dob = datetime.strptime(dob, "%d/%m/%Y")
-        member.mobile_no = data.get("mobile_no", "")
+        member.mobile_no = data.get("mobile_no", None)
         member.gender = data.get("gender", "male")
         if level:
             member.level_id = level.to_dbref()
