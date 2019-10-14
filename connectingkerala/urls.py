@@ -16,11 +16,13 @@ Including another URLconf
 from django.conf.urls import url
 from django.conf.urls import include
 from .views import LoginView
+from members.urls import members_router
 
 urlpatterns = [
     url(r'^admin_login', LoginView.as_view(actions={'post': 'admin_login'}), name='admin_login'),
     url(r'^login', LoginView.as_view(actions={'post': 'login'}), name='login'),
     url(r'^levels', include('levels.urls', namespace='levels')),
     url(r'^groups', include('groups.urls', namespace='groups')),
+    # url(r'^members', include(members_router.urls, namespace='members'))
     url(r'^members', include('members.urls', namespace='members')),
 ]
