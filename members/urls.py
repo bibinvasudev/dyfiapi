@@ -1,6 +1,6 @@
 from django.conf.urls import url
-
-from api.endpoints.members import MemberEndpoint, get_members_details
+from rest_framework_mongoengine import routers
+from api.endpoints.members import MemberEndpoint, get_members_details, MembersViewSet
 
 urlpatterns = [
     url(r'^/export_data$', get_members_details, name='export_data'),
@@ -8,3 +8,6 @@ urlpatterns = [
     url(r'^/(?P<member_id>\w+)$', MemberEndpoint.as_view({'get': 'retrieve', 'put': 'update', 'delete': 'delete'})),
     url(r'', MemberEndpoint.as_view({'post': 'create', 'get': 'list'}))
 ]
+
+members_router = routers.DefaultRouter(trailing_slash=False)
+members_router.register(r'', MembersViewSet, base_name='members')

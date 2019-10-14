@@ -2,13 +2,22 @@ from datetime import datetime
 import csv
 from collections import OrderedDict
 from django.http import HttpResponse
+from rest_framework_mongoengine import viewsets
 
 from members.models import Member
 from levels.models import Level
 from groups.models import Group
 from core.endpoint import Endpoint
 from core.response import HTTPResponse
+from core.pagination import MediumSizePagination
 from members.models import Name
+from api.serializers.member_serializers import MemberSerializer
+
+
+class MembersViewSet(viewsets.ModelViewSet):
+    model = Group
+    serializer_class = MemberSerializer
+    pagination_class = MediumSizePagination
 
 
 class MemberEndpoint(Endpoint):
@@ -25,6 +34,13 @@ class MemberEndpoint(Endpoint):
         if dob:
             member.dob = datetime.strptime(dob, "%d/%m/%Y")
         member.mobile_no = data.get("mobile_no", None)
+        member.address = data.get("address", "")
+        member.job = data.get("job", "")
+        member.email = data.get("email", "")
+        member.qualification = data.get("qualification", "")
+        member.blood_group = data.get("blood_group", "")
+        member.age = data.get("age", 0)
+        member.is_member_already = data.get("is_member_already", False)
         member.gender = data.get("gender", "male")
         if level:
             member.level_id = level.to_dbref()
@@ -51,6 +67,15 @@ class MemberEndpoint(Endpoint):
         if data.get('last_name', False):
             member.name.last = data.get('last_name')
         member.mobile_no = data.get('mobile_no', member.mobile_no)
+        member.address = data.get("address", member.address)
+        member.job = data.get("job", member.job)
+        member.email = data.get("email", member.email)
+        member.qualification = data.get("qualification", member.qualification)
+        member.blood_group = data.get("blood_group", member.blood_group)
+        member.age = data.get("age", member.age)
+        member.is_member_already = data.get("is_member_already", member.is_member_already)
+        member.gender = data.get("gender", member.gender)
+
         dob = data.get('dob', None)
         if dob:
             member.dob = datetime.strptime(dob, "%d/%m/%Y")
