@@ -27,7 +27,7 @@ class Member(Document, CustomBaseDocument):
     name = EmbeddedDocumentField(Name, required=True)
     dob = DateTimeField()
     mobile_no = StringField(required=True, unique_with="dob")
-    address = MultiLineStringField()
+    address = StringField()
     group_ids = ListField(ReferenceField("Group"))
     group_id = ReferenceField("Group")
     level_id = ReferenceField("Level")
