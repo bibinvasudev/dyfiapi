@@ -25,4 +25,5 @@ urlpatterns = [
     url(r'^groups', include('groups.urls', namespace='groups')),
     # url(r'^members', include(members_router.urls, namespace='members'))
     url(r'^members', include('members.urls', namespace='members')),
+    url(r'^config', include('config.urls', namespace='config')),
 ]
