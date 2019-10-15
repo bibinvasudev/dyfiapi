@@ -157,3 +157,14 @@ Request URL: http://localhost:8000/members/<member_id>
 Method : DELETE
 
 
+13.	Image Upload
+Request URL: http://localhost:8000/config/banner_image
+Method : POST
+Request Payload: { “banner_image”: <bas64image data>}
+	
+14.	Replace Image
+Request URL: http://localhost:8000/config/banner_image
+Method : PUT
+Request Payload: { “banner_image”: <bas64image data>}
+
+
