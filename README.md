@@ -162,9 +162,28 @@ Request URL: http://localhost:8000/config/banner_image
 Method : POST
 Request Payload: { “banner_image”: <bas64image data>}
 	
-14.	Replace Image
+14.	Get Image
+Request URL: http://localhost:8000/config/banner_image
+Method : Get
+	
+15.	Replace Image
 Request URL: http://localhost:8000/config/banner_image
 Method : PUT
 Request Payload: { “banner_image”: <bas64image data>}
+	
+16.	Search Members using mobile_no
+Request URL: http://localhost:8000/members
+Method : GET
+Request Query Params: { “mobile_no”: "87987923423"}
+
+17.	Get all members excel data
+Request URL: http://localhost:8000/members/export_data
+Method : GET
+Request Query Params: { “mobile_no”: "87987923423"}
+
+18.	Get excel data of members in group with group id "90902938023434"-
+Request URL: http://localhost:8000/members/export_data
+Method : GET
+Request Query Params: { “group_id”: "90902938023434"}
 
 
