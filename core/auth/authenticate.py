@@ -12,6 +12,7 @@ class TokenAuthenticate(object):
             raise InvalidTokenError
         payload = jwt.decode(token, audience='kerala_aud')
         user = Member.get_registered_member(payload)
+        request.user = user
         if not user:
             raise InvalidTokenError
         return user
