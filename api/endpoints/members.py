@@ -90,8 +90,11 @@ class MemberEndpoint(Endpoint):
 
     def list(self, request, *args, **kwargs):
         group = Group.safe_get(request.query_params.get('group_id', None))
-        if group:
-            members = Member.objects.filter(group_id=group.id)
+        mobile_no = request.query_params.get('mobile_no', None)
+        if mobile_no:
+            members = Member.objects.filter(mobile_no=mobile_no)
+        elif group:
+            members = Member.objects.filter(group_ids__in=[group.id])
         else:
             members = Member.objects.all()
         response = []
@@ -148,23 +151,30 @@ class MemberEndpoint(Endpoint):
             return HTTPResponse({"No such member found!"})
 
 
-def get_members_details(request):
-    response = HttpResponse(content_type="text/csv")
-    response["Content-Disposition"] = "attachment; filename=MembersDetails.csv"
-    attributes = OrderedDict([('name.first', 'First Name'),
-                              ('name.last', 'Last Name'),
-                              ('age', 'Age'),
-                              ('gender', 'Gender'),
-                              ('mobile_no', 'Mobile No')])
+class ExportDataEndpoint(Endpoint):
 
-    csv_writer = csv.writer(response, csv.excel)
-    csv_writer.writerow([label for _, label in attributes.items()])
-    for member in Member.objects.all():
-        values = []
-        for attr, _ in attributes.items():
-            values.append(eval('member.' + attr))
-        csv_writer.writerow(values)
-    return response
+    def get_members_details(self, request):
+        response = HttpResponse(content_type="text/csv")
+        response["Content-Disposition"] = "attachment; filename=MembersDetails.csv"
+        attributes = OrderedDict([('name.first', 'First Name'),
+                                  ('name.last', 'Last Name'),
+                                  ('age', 'Age'),
+                                  ('gender', 'Gender'),
+                                  ('mobile_no', 'Mobile No')])
+
+        csv_writer = csv.writer(response, csv.excel)
+        csv_writer.writerow([label for _, label in attributes.items()])
+        group = Group.safe_get(request.query_params.get('group_id', None))
+        if group:
+            members = Member.objects.filter(group_ids__in=[group.id])
+        else:
+            members = Member.objects.all()
+        for member in members:
+            values = []
+            for attr, _ in attributes.items():
+                values.append(eval('member.' + attr))
+            csv_writer.writerow(values)
+        return response
 
 
 
