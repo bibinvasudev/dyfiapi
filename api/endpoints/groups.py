@@ -13,7 +13,7 @@ class GroupEndpoint(Endpoint):
         data = dict(request.data)
         user = request.user
         level = Level.safe_get(data.get('level_id'))
-        admins = Member.objects.filter(id__in=data.get('admin_ids'))
+        admins = Member.objects.filter(id__in=data.get('admin_ids', []))
         parent_group = Group.safe_get(data.get('parent_group_id'))
         group = Group()
         group.title = data.get('title', '')
@@ -27,11 +27,12 @@ class GroupEndpoint(Endpoint):
             group.parent_group_id = parent_group.id
         elif request.user.group_ids and request.higher_group:
             group.parent_group_id = request.higher_group
-        for admin in admins:
-            if admin.is_admin:
-                return HTTPResponse({"Error": admin.name.first + " is already an admin of a group !!"})
-            admin.is_admin = True
-            admin.save()
+        if len(admins) > 0:
+            for admin in admins:
+                if admin.is_admin:
+                    return HTTPResponse({"Error": admin.name.first + " is already an admin of a group !!"})
+                admin.is_admin = True
+                admin.save()
         group.admin_ids = admins
         group.created_at = datetime.utcnow()
         group.created_by = user.to_dbref() if user.id else None

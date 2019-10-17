@@ -44,7 +44,7 @@ class MemberEndpoint(Endpoint):
         member.gender = data.get("gender", "male")
         if level:
             member.level_id = level.to_dbref()
-        if groups:
+        if len(groups) > 0:
             member.group_ids = groups
         elif request.user and request.user.group_ids and request.higher_group:
             member.group_ids = [request.higher_group]
@@ -84,7 +84,7 @@ class MemberEndpoint(Endpoint):
             member.dob = datetime.strptime(dob, "%d/%m/%Y")
         if level:
             member.level_id = level.to_dbref()
-        if groups:
+        if len(groups) > 0:
             higher_group = sorted(groups, key=lambda g: g.level_id.level_no)[-1]
             member.group_ids = groups
             member.is_active = True

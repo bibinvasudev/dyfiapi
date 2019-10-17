@@ -16,7 +16,7 @@ class LevelEndpoint(Endpoint):
         level.created_at = datetime.utcnow()
         level.created_by = user.to_dbref() if user.id else None
         level.save()
-        response = {"title": level.title, "level_no": level.level_no}
+        response = {"id": str(level.id), "title": level.title, "level_no": level.level_no}
         return HTTPResponse(response)
 
     def update(self, request, level_id=None):
