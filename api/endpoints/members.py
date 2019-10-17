@@ -3,7 +3,7 @@ import csv
 from collections import OrderedDict
 from django.http import HttpResponse
 from rest_framework_mongoengine import viewsets
-
+from mongoengine import Q
 from members.models import Member
 from levels.models import Level
 from groups.models import Group
@@ -46,6 +46,9 @@ class MemberEndpoint(Endpoint):
             member.level_id = level.to_dbref()
         if groups:
             member.group_ids = groups
+        elif request.user and request.user.group_ids and request.higher_group:
+            member.group_ids = [request.higher_group]
+            member.level_id = request.higher_group.level_id
         member.created_at = datetime.utcnow()
         member.created_by = user.to_dbref() if user.id else None
         member.save()
@@ -82,21 +85,32 @@ class MemberEndpoint(Endpoint):
         if level:
             member.level_id = level.to_dbref()
         if groups:
+            higher_group = sorted(groups, key=lambda g: g.level_id.level_no)[-1]
             member.group_ids = groups
+            member.is_active = True
+            member.level_id = higher_group.level_id
         member.updated_at = datetime.utcnow()
         member.updated_by = user.to_dbref() if user.id else None
         member.save()
         return self.retrieve(request, member_id=member_id)
 
     def list(self, request, *args, **kwargs):
-        group = Group.safe_get(request.query_params.get('group_id', None))
-        mobile_no = request.query_params.get('mobile_no', None)
-        if mobile_no:
-            members = Member.objects.filter(mobile_no=mobile_no)
-        elif group:
-            members = Member.objects.filter(group_ids__in=[group.id])
-        else:
-            members = Member.objects.all()
+        query = Q()
+        for qp in request.query_params:
+            if qp == "first_name":
+                query |= Q(name__first=request.query_params.get(qp))
+            elif qp == "middle_name":
+                query |= Q(name__middle=request.query_params.get(qp))
+            elif qp == "last_name":
+                query |= Q(name__last=request.query_params.get(qp))
+            elif qp == "group_id":
+                group = Group.safe_get(request.query_params.get(qp))
+                if group:
+                    query |= Q(group_ids__in=[group.id])
+            else:
+                query |= Q(**{qp: request.query_params.get(qp)})
+
+        members = Member.objects.filter(query)
         response = []
         for member in members:
             response.append({"id": str(member.id), "name": member.get_full_name()})

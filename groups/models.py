@@ -1,4 +1,4 @@
-from mongoengine import Document, StringField, ReferenceField, DateTimeField
+from mongoengine import Document, StringField, ReferenceField, DateTimeField, ListField
 from core.models import CustomBaseDocument
 
 
@@ -6,6 +6,7 @@ class Group(Document, CustomBaseDocument):
     parent_group_id = ReferenceField("Group")
     level_id = ReferenceField("Level", required=True)
     admin_id = ReferenceField("Member")
+    admin_ids = ListField(ReferenceField("Member"))
     title = StringField(unique=True)
     icon = StringField()
     created_by = ReferenceField("Member")

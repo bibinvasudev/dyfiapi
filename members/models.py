@@ -3,7 +3,6 @@ from mongoengine import Document, EmbeddedDocument, StringField, DateTimeField, 
 from mongoengine import ListField
 from mongoengine import IntField
 from mongoengine import BooleanField
-from mongoengine import MultiLineStringField
 from core.models import CustomBaseDocument
 
 
@@ -32,6 +31,8 @@ class Member(Document, CustomBaseDocument):
     group_id = ReferenceField("Group")
     level_id = ReferenceField("Level")
     is_member_already = BooleanField(default=False)
+    is_active = BooleanField(default=False)
+    is_admin = BooleanField(default=False)
     created_by = ReferenceField("Member")
     created_at = DateTimeField()
     updated_by = ReferenceField("Member")
@@ -57,3 +58,18 @@ class Member(Document, CustomBaseDocument):
             if len(members) > 0:
                 return members[0]
         return False
+
+    @property
+    def is_superuser(self):
+        if self.role == "superuser":
+            return True
+        else:
+            return False
+
+    @property
+    def higher_group(self):
+        groups = sorted(self.group_ids, key=lambda g: g.level_id.level_no)
+        if len(groups) > 0:
+            return groups[-1]
+        else:
+            return False
