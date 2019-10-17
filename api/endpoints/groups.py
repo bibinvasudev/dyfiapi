@@ -13,15 +13,28 @@ class GroupEndpoint(Endpoint):
         data = dict(request.data)
         user = request.user
         level = Level.safe_get(data.get('level_id'))
-        admin = Member.safe_get(data.get('admin_id'))
+        admins = Member.objects.filter(id__in=data.get('admin_ids'))
         parent_group = Group.safe_get(data.get('parent_group_id'))
         group = Group()
         group.title = data.get('title', '')
-        group.level_id = level.to_dbref() if level else None
-        group.admin_id = admin.to_dbref() if admin else None
+        if level:
+            group.level_id = level.to_dbref()
+        elif request.user and request.user.level_id:
+            sub_levels = Level.objects.filter(level_no=request.user.level_id.level_no - 1)
+            if len(sub_levels) > 0:
+                group.level_id = sub_levels[0]
+        if parent_group:
+            group.parent_group_id = parent_group.id
+        elif request.user.group_ids and request.higher_group:
+            group.parent_group_id = request.higher_group
+        for admin in admins:
+            if admin.is_admin:
+                return HTTPResponse({"Error": admin.name.first + " is already an admin of a group !!"})
+            admin.is_admin = True
+            admin.save()
+        group.admin_ids = admins
         group.created_at = datetime.utcnow()
         group.created_by = user.to_dbref() if user.id else None
-        group.parent_group_id = parent_group.id if parent_group else None
         group.save()
         response = {"id": str(group.id), "title": group.title}
         return HTTPResponse(response)
@@ -49,10 +62,11 @@ class GroupEndpoint(Endpoint):
         return HTTPResponse(response)
 
     def list(self, request, *args, **kwargs):
-        groups = Group.objects.all()
         response = []
-        for group in groups:
-            response.append({"id": str(group.id), "title": group.title, "level_title": group.level_id.title})
+        if request.user.is_admin:
+            groups = Group.objects.filter(created_by=request.user.id)
+            for group in groups:
+                response.append({"id": str(group.id), "title": group.title, "level_title": group.level_id.title})
         return HTTPResponse(response)
 
     def retrieve(self, request, group_id=None):
