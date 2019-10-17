@@ -186,4 +186,8 @@ Request URL: http://localhost:8000/members/export_data
 Method : GET
 Request Query Params: { “group_id”: "90902938023434"}
 
+19.	Get details of logged in member(Me)
+Request URL: http://localhost:8000/members/me
+Method : GET
+
 
