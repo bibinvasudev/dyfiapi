@@ -62,7 +62,7 @@ class MemberEndpoint(Endpoint):
         if not member:
             return HTTPResponse({"No such member found !"})
         level = Level.safe_get(data.get('level_id'))
-        groups = Group.objects.filter(id__in=data.get('group_ids'))
+        groups = Group.objects.filter(id__in=data.get('group_ids', []))
         if data.get('first_name', False):
             member.name.first = data.get('first_name')
         if data.get('middle_name', False):
