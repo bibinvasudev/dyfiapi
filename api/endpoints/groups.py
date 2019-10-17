@@ -63,10 +63,13 @@ class GroupEndpoint(Endpoint):
 
     def list(self, request, *args, **kwargs):
         response = []
-        if request.user.is_admin:
+        groups = []
+        if request.user and request.user.is_admin:
             groups = Group.objects.filter(created_by=request.user.id)
-            for group in groups:
-                response.append({"id": str(group.id), "title": group.title, "level_title": group.level_id.title})
+        if request.user and request.user.is_superuser:
+            groups = Group.objects.all()
+        for group in groups:
+            response.append({"id": str(group.id), "title": group.title, "level_title": group.level_id.title})
         return HTTPResponse(response)
 
     def retrieve(self, request, group_id=None):
