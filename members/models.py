@@ -4,6 +4,7 @@ from mongoengine import ListField
 from mongoengine import IntField
 from mongoengine import BooleanField
 from core.models import CustomBaseDocument
+from mongoengine import FileField
 
 
 class Name(EmbeddedDocument):
@@ -20,7 +21,7 @@ class Member(Document, CustomBaseDocument):
     qualification = StringField()
     job = StringField()
     email = StringField()
-    image = StringField(default="")
+    image = FileField()
     age = IntField()
     gender = StringField(choices=(('male', 'Male'), ('female', 'Female'), ('other', 'Other')))
     name = EmbeddedDocumentField(Name, required=True)

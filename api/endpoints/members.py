@@ -42,6 +42,10 @@ class MemberEndpoint(Endpoint):
         member.age = data.get("age", 0)
         member.is_member_already = data.get("is_member_already", False)
         member.gender = data.get("gender", "male")
+
+        if request.data.get("image", None):
+            member.image.put(request.data.get("image"), encoding='utf-8')
+
         if level:
             member.level_id = level.to_dbref()
         if len(groups) > 0:
@@ -69,6 +73,10 @@ class MemberEndpoint(Endpoint):
             member.name.middle = data.get('middle_name')
         if data.get('last_name', False):
             member.name.last = data.get('last_name')
+
+        if request.data.get("image", None):
+            member.image.replace(request.data.get("image"), encoding='utf-8')
+
         member.mobile_no = data.get('mobile_no', member.mobile_no)
         member.address = data.get("address", member.address)
         member.job = data.get("job", member.job)
@@ -137,7 +145,8 @@ class MemberEndpoint(Endpoint):
             "level_no": member.level_id.level_no if member.level_id else "",
             "level_title": member.level_id.title if member.level_id else "",
             "group_id": str(member.group_id.id) if member.group_id else "",
-            "group_title": member.group_id.title if member.group_id else ""
+            "group_title": member.group_id.title if member.group_id else "",
+            "image": member.image.read() if member.image else ""
         }
         return HTTPResponse(response)
 
@@ -163,6 +172,21 @@ class MemberEndpoint(Endpoint):
             return self.update(request, member_id=str(user.id))
         else:
             return HTTPResponse({"No such member found!"})
+
+    def update_my_profile_image(self, request):
+        user = request.user
+        if user and user.image:
+            user.image.replace(request.data.get("image"), encoding='utf-8')
+        else:
+            user.image.put(request.data.get("image"), encoding='utf-8')
+        user.save()
+        return self.get_my_profile_image(request)
+
+    def get_my_profile_image(self, request):
+        user = request.user
+        if user and not user.image:
+            return HTTPResponse({"Please upload the image!"})
+        return HTTPResponse({"data": user.image.read()})
 
 
 class ExportDataEndpoint(Endpoint):
