@@ -196,7 +196,12 @@ Method : PUT
 Request Payload: { “middle_name”: “middlename”}
 
 21. Update My Profile Image
-Request URL: http://localhost:8000/members/me/image
+Request URL: http://localhost:8000/members/me
+Method : PUT
+Request Payload: { “image”: "base64image" }
+
+22. Update Member Image
+Request URL: http://localhost:8000/members/<member_id>
 Method : PUT
 Request Payload: { “image”: "base64image" }
 
