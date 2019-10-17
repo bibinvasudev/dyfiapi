@@ -186,8 +186,18 @@ Request URL: http://localhost:8000/members/export_data
 Method : GET
 Request Query Params: { “group_id”: "90902938023434"}
 
-19.	Get details of logged in member(Me)
+19.	Get My Profile -details of logged in member(Me)
 Request URL: http://localhost:8000/members/me
 Method : GET
+
+20.	Update My Profile
+Request URL: http://localhost:8000/members/me
+Method : PUT
+Request Payload: { “middle_name”: “middlename”}
+
+21. Update My Profile Image
+Request URL: http://localhost:8000/members/me/image
+Method : PUT
+Request Payload: { “image”: "base64image" }
 
 
