@@ -50,9 +50,9 @@ class MemberEndpoint(Endpoint):
             member.level_id = level.to_dbref()
         if len(groups) > 0:
             member.group_ids = groups
-        elif request.user and request.user.group_ids and request.higher_group:
-            member.group_ids = [request.higher_group]
-            member.level_id = request.higher_group.level_id
+        elif request.user and request.user.group_ids and request.user.higher_group:
+            member.group_ids = [request.user.higher_group]
+            member.level_id = request.user.higher_group.level_id
         member.created_at = datetime.utcnow()
         member.created_by = user.to_dbref() if user.id else None
         member.save()
@@ -175,11 +175,12 @@ class MemberEndpoint(Endpoint):
 
     def update_my_profile_image(self, request):
         user = request.user
-        if user and user.image:
-            user.image.replace(request.data.get("image"), encoding='utf-8')
-        else:
-            user.image.put(request.data.get("image"), encoding='utf-8')
-        user.save()
+        if request.data.get("image", None):
+            if user and user.image:
+                user.image.replace(request.data.get("image"), encoding='utf-8')
+            else:
+                user.image.put(request.data.get("image"), encoding='utf-8')
+            user.save()
         return self.get_my_profile_image(request)
 
     def get_my_profile_image(self, request):
