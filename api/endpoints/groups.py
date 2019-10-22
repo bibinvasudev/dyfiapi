@@ -25,8 +25,8 @@ class GroupEndpoint(Endpoint):
                 group.level_id = sub_levels[0]
         if parent_group:
             group.parent_group_id = parent_group.id
-        elif request.user.group_ids and request.higher_group:
-            group.parent_group_id = request.higher_group
+        elif request.user.group_ids and request.user.higher_group:
+            group.parent_group_id = request.user.higher_group
         if len(admins) > 0:
             for admin in admins:
                 if admin.is_admin:

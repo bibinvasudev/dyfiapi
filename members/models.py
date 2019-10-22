@@ -21,7 +21,7 @@ class Member(Document, CustomBaseDocument):
     qualification = StringField()
     job = StringField()
     email = StringField()
-    image = FileField()
+    image = FileField(default="sample")
     age = IntField()
     gender = StringField(choices=(('male', 'Male'), ('female', 'Female'), ('other', 'Other')))
     name = EmbeddedDocumentField(Name, required=True)
