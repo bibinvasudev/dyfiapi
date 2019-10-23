@@ -30,6 +30,7 @@ class Member(Document, CustomBaseDocument):
     address = StringField()
     group_ids = ListField(ReferenceField("Group"))
     group_id = ReferenceField("Group")
+    default_group = ReferenceField("Group")
     level_id = ReferenceField("Level")
     is_member_already = BooleanField(default=False)
     is_active = BooleanField(default=False)

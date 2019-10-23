@@ -15,17 +15,20 @@ class Group(Document, CustomBaseDocument):
     updated_by = ReferenceField("Member")
     updated_at = DateTimeField()
 
-    def add_member(self, member):
+    def add_member(self, members=[]):
         if not self.member_ids:
             self.member_ids = []
-        if member.id not in self.member_ids:
-            self.member_ids.append(member.id)
-        if not member.group_ids:
-            member.group_ids = []
-        if self.id not in member.group_ids:
-            member.group_ids.append(self.id)
-        self.save()
-        member.save()
+        for member in members:
+            if member not in self.member_ids:
+                self.member_ids.append(member.to_dbref())
+                self.save()
+            if not member.group_ids:
+                member.group_ids = []
+            if self not in member.group_ids:
+                member.group_ids.append(self.to_dbref())
+                member.is_active = True
+            member.default_group = None
+            member.save()
 
     def get_hierarchy(self, path={}):
         if self.parent_group_id:

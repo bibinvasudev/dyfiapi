@@ -38,7 +38,7 @@ class GroupEndpoint(Endpoint):
         group.created_by = user.to_dbref() if user.id else None
         group.save()
         if request.user and hasattr(request.user, "id"):
-            group.add_member(request.user)
+            group.add_member(members=[request.user])
         response = {"id": str(group.id), "title": group.title}
         return HTTPResponse(response)
 
@@ -50,6 +50,7 @@ class GroupEndpoint(Endpoint):
             return HTTPResponse({"No such group found !"})
         level = Level.safe_get(data.get('level_id'))
         admin = Member.safe_get(data.get('admin_id'))
+        members = Member.objects.filter(id__in=data.get('member_ids', []))
         parent_group = Group.safe_get(data.get('parent_group_id'))
         group.title = data.get('title', group.title)
         if level:
@@ -61,6 +62,8 @@ class GroupEndpoint(Endpoint):
         group.updated_at = datetime.utcnow()
         group.updated_by = user.to_dbref() if user.id else None
         group.save()
+        if len(members) > 0:
+            group.add_member(members=members)
         response = {"id": str(group.id), "title": group.title}
         return HTTPResponse(response)
 
@@ -72,10 +75,13 @@ class GroupEndpoint(Endpoint):
         if request.user and request.user.is_superuser:
             groups = Group.objects.all()
         for group in groups:
+            members = group.member_ids
+            inactive = [m for m in members if m.default_group]
+            active_count = len(members) - len(inactive)
             group_data = {"id": str(group.id),
                           "title": group.title,
                           "level_title": group.level_id.title,
-                          "members_count": len(group.member_ids),
+                          "members_count": {"total": len(members), "active": active_count, "inactive": len(inactive)},
                           "hierarchy": group.get_hierarchy()}
             response.append(group_data)
         return HTTPResponse(response)
