@@ -33,12 +33,13 @@ class GroupEndpoint(Endpoint):
                     return HTTPResponse({"Error": admin.name.first + " is already an admin of a group !!"})
                 admin.is_admin = True
                 admin.save()
-        group.admin_ids = admins
+            group.admin_ids = [admin.to_dbref for admin in admins]
         group.created_at = datetime.utcnow()
         group.created_by = user.to_dbref() if user.id else None
         group.save()
         if request.user and hasattr(request.user, "id"):
             group.add_member(members=[request.user])
+            group.add_member(members=admins)
         response = {"id": str(group.id), "title": group.title}
         return HTTPResponse(response)
 
@@ -49,14 +50,19 @@ class GroupEndpoint(Endpoint):
         if not group:
             return HTTPResponse({"No such group found !"})
         level = Level.safe_get(data.get('level_id'))
-        admin = Member.safe_get(data.get('admin_id'))
+        admins = Member.objects.filter(id__in=data.get('admin_ids', []))
         members = Member.objects.filter(id__in=data.get('member_ids', []))
         parent_group = Group.safe_get(data.get('parent_group_id'))
         group.title = data.get('title', group.title)
         if level:
             group.level_id = level.to_dbref()
-        if admin:
-            group.admin_id = admin.to_dbref()
+        if len(admins) > 0:
+            for admin in admins:
+                if admin.is_admin:
+                    return HTTPResponse({"Error": admin.name.first + " is already an admin of a group !!"})
+                admin.is_admin = True
+                admin.save()
+            group.admin_ids = [admin.to_dbref for admin in admins]
         if parent_group:
             group.parent_group_id = parent_group.to_dbref()
         group.updated_at = datetime.utcnow()
@@ -64,6 +70,7 @@ class GroupEndpoint(Endpoint):
         group.save()
         if len(members) > 0:
             group.add_member(members=members)
+            group.add_member(members=admins)
         response = {"id": str(group.id), "title": group.title}
         return HTTPResponse(response)
 
