@@ -12,6 +12,8 @@ class GroupEndpoint(Endpoint):
     def create(self, request, *args, **kwargs):
         data = dict(request.data)
         user = request.user
+        if (not user.is_admin) or (not user.is_superuser):
+            return HTTPResponse({"Error": "Cannot create a Group !! Only admin can create a new group!!"})
         level = Level.safe_get(data.get('level_id'))
         admins = Member.objects.filter(id__in=data.get('admin_ids', []))
         parent_group = Group.safe_get(data.get('parent_group_id'))
@@ -23,6 +25,8 @@ class GroupEndpoint(Endpoint):
             sub_levels = Level.objects.filter(level_no=request.user.level_id.level_no - 1)
             if len(sub_levels) > 0:
                 group.level_id = sub_levels[0]
+            else:
+                return HTTPResponse({"Error": "Cannot create Group !! You are at the lowest level!!"})
         if parent_group:
             group.parent_group_id = parent_group.id
         elif request.user.group_ids and request.user.higher_group:

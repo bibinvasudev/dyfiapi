@@ -25,6 +25,8 @@ class MemberEndpoint(Endpoint):
     def create(self, request, *args, **kwargs):
         data = dict(request.data)
         user = request.user
+        if (not user.is_admin) or (not user.is_superuser):
+            return HTTPResponse({"Error": "Cannot create a Member !! Only admin can add new member!!"})
         level = Level.safe_get(data.get('level_id'))
         groups = Group.objects.filter(id__in=data.get('group_ids', []))
         member = Member()
@@ -199,6 +201,9 @@ class MemberEndpoint(Endpoint):
 class ExportDataEndpoint(Endpoint):
 
     def get_members_details(self, request):
+        user = request.user
+        if (not user.is_admin) or (not user.is_superuser):
+            return HTTPResponse({"Error": "You cannot export the data!! Only admin/Superuser can do it!!"})
         response = HttpResponse(content_type="text/csv")
         response["Content-Disposition"] = "attachment; filename=MembersDetails.csv"
         attributes = OrderedDict([('name.first', 'First Name'),
