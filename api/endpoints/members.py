@@ -51,11 +51,13 @@ class MemberEndpoint(Endpoint):
         if len(groups) > 0:
             member.group_ids = groups
         elif request.user and request.user.group_ids and request.user.higher_group:
-            member.group_ids = [request.user.higher_group]
+            member.default_group = request.user.higher_group
             member.level_id = request.user.higher_group.level_id
         member.created_at = datetime.utcnow()
         member.created_by = user.to_dbref() if user.id else None
         member.save()
+        if request.user.higher_group:
+            request.user.higher_group.add_member(members=[member])
         response = {"id": str(member.id), "name": member.get_full_name()}
         return HTTPResponse(response)
 
@@ -94,7 +96,8 @@ class MemberEndpoint(Endpoint):
             member.level_id = level.to_dbref()
         if len(groups) > 0:
             higher_group = sorted(groups, key=lambda g: g.level_id.level_no)[-1]
-            member.group_ids = groups
+            for group in groups:
+                group.add_member(members=[member])
             member.is_active = True
             member.level_id = higher_group.level_id
         member.updated_at = datetime.utcnow()
@@ -121,7 +124,8 @@ class MemberEndpoint(Endpoint):
         members = Member.objects.filter(query)
         response = []
         for member in members:
-            response.append({"id": str(member.id), "name": member.get_full_name()})
+            response.append({"id": str(member.id), "name": member.get_full_name(), "is_active": member.is_active,
+                             "is_admin": member.is_admin, "image": member.image.read() if member.image else ""})
         return HTTPResponse(response)
 
     def retrieve(self, request, member_id=None):
@@ -138,6 +142,8 @@ class MemberEndpoint(Endpoint):
             "gender": member.gender,
             "email": member.email,
             "qualification": member.qualification,
+            "is_active": member.is_active,
+            "is_admin": member.is_admin,
             "is_member_already": member.is_member_already,
             "blood_group": member.blood_group,
             "dob": datetime.strftime(member.dob, "%d/%m/%Y"),
@@ -199,7 +205,14 @@ class ExportDataEndpoint(Endpoint):
                                   ('name.last', 'Last Name'),
                                   ('age', 'Age'),
                                   ('gender', 'Gender'),
-                                  ('mobile_no', 'Mobile No')])
+                                  ('mobile_no', 'Mobile No'),
+                                  ('dob', 'Date Of Birth'),
+                                  ('address', 'Address'),
+                                  ('job', 'Job'),
+                                  ('blood_group', 'Blood Group'),
+                                  ('qualification', 'Qualification'),
+                                  ('email', 'Email'),
+                                  ])
 
         csv_writer = csv.writer(response, csv.excel)
         csv_writer.writerow([label for _, label in attributes.items()])
