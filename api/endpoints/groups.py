@@ -37,6 +37,8 @@ class GroupEndpoint(Endpoint):
         group.created_at = datetime.utcnow()
         group.created_by = user.to_dbref() if user.id else None
         group.save()
+        if request.user and hasattr(request.user, "id"):
+            group.add_member(request.user)
         response = {"id": str(group.id), "title": group.title}
         return HTTPResponse(response)
 
@@ -70,7 +72,26 @@ class GroupEndpoint(Endpoint):
         if request.user and request.user.is_superuser:
             groups = Group.objects.all()
         for group in groups:
-            response.append({"id": str(group.id), "title": group.title, "level_title": group.level_id.title})
+            group_data = {"id": str(group.id),
+                          "title": group.title,
+                          "level_title": group.level_id.title,
+                          "members_count": len(group.member_ids),
+                          "hierarchy": group.get_hierarchy()}
+            response.append(group_data)
+        return HTTPResponse(response)
+
+    def get_my_groups(self, request, *args, **kwargs):
+        response = []
+        groups = []
+        if request.user and (len(request.user.group_ids) > 0):
+            groups = request.user.group_ids
+        for group in groups:
+            group_data = {"id": str(group.id),
+                          "title": group.title,
+                          "level_title": group.level_id.title,
+                          "members_count": len(group.member_ids),
+                          "hierarchy": group.get_hierarchy()}
+            response.append(group_data)
         return HTTPResponse(response)
 
     def retrieve(self, request, group_id=None):

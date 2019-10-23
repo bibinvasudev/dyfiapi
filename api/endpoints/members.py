@@ -95,6 +95,8 @@ class MemberEndpoint(Endpoint):
         if len(groups) > 0:
             higher_group = sorted(groups, key=lambda g: g.level_id.level_no)[-1]
             member.group_ids = groups
+            for group in groups:
+                group.add_member(member)
             member.is_active = True
             member.level_id = higher_group.level_id
         member.updated_at = datetime.utcnow()
