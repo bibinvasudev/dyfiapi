@@ -30,9 +30,10 @@ class Group(Document, CustomBaseDocument):
             member.default_group = None
             member.save()
 
-    def get_hierarchy(self, path={}):
+    def get_hierarchy(self):
+        path = {}
         if self.parent_group_id:
-            self.parent_group_id.get_hierarchy(path)
+            path = self.parent_group_id.get_hierarchy()
         path.update({self.level_id.level_no: self.title})
         return path
 
