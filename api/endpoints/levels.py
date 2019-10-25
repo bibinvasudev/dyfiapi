@@ -10,7 +10,7 @@ class LevelEndpoint(Endpoint):
     def create(self, request, *args, **kwargs):
         data = dict(request.data)
         user = request.user
-        if (not user.is_admin) or (not user.is_superuser):
+        if not (user.is_admin or user.is_superuser):
             return HTTPResponse({"Error": "Cannot create a Level !! Only admin can create a new level!!"})
         level = Level()
         level.title = data.get('title', '')
