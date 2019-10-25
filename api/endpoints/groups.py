@@ -12,7 +12,7 @@ class GroupEndpoint(Endpoint):
     def create(self, request, *args, **kwargs):
         data = dict(request.data)
         user = request.user
-        if (not user.is_admin) or (not user.is_superuser):
+        if not (user.is_admin or user.is_superuser):
             return HTTPResponse({"Error": "Cannot create a Group !! Only admin can create a new group!!"})
         level = Level.safe_get(data.get('level_id'))
         admins = Member.objects.filter(id__in=data.get('admin_ids', []))
