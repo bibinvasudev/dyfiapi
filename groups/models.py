@@ -1,4 +1,5 @@
 from mongoengine import Document, StringField, ReferenceField, DateTimeField, ListField
+from mongoengine import FileField
 from core.models import CustomBaseDocument
 
 
@@ -9,7 +10,7 @@ class Group(Document, CustomBaseDocument):
     admin_ids = ListField(ReferenceField("Member"))
     member_ids = ListField(ReferenceField("Member"))
     title = StringField(unique=True)
-    icon = StringField()
+    image = FileField(default="sample")
     created_by = ReferenceField("Member")
     created_at = DateTimeField(required=True)
     updated_by = ReferenceField("Member")
