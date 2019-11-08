@@ -11,6 +11,7 @@ from core.endpoint import Endpoint
 from core.response import HTTPResponse
 from core.pagination import MediumSizePagination
 from members.models import Name
+from members.models import Address
 from api.serializers.member_serializers import MemberSerializer
 
 
@@ -30,13 +31,12 @@ class MemberEndpoint(Endpoint):
         level = Level.safe_get(data.get('level_id'))
         groups = Group.objects.filter(id__in=data.get('group_ids', []))
         member = Member()
-        name = Name(first=data.get('first_name', None), middle=data.get('middle_name', ""), last=data.get('last_name', None))
-        member.name = name
+        member.name = Name(**data.get('name', {}))
+        member.address = Address(**data.get('address', {}))
         dob = data.get('dob', None)
         if dob:
             member.dob = datetime.strptime(dob, "%d/%m/%Y")
         member.mobile_no = data.get("mobile_no", None)
-        member.address = data.get("address", "")
         member.job = data.get("job", "")
         member.email = data.get("email", "")
         member.qualification = data.get("qualification", "")
@@ -50,16 +50,19 @@ class MemberEndpoint(Endpoint):
 
         if level:
             member.level_id = level.to_dbref()
-        if len(groups) > 0:
-            member.group_ids = groups
-        elif request.user and request.user.group_ids and request.user.higher_group:
-            member.default_group = request.user.higher_group
-            member.level_id = request.user.higher_group.level_id
         member.created_at = datetime.utcnow()
         member.created_by = user.to_dbref() if user.id else None
         member.save()
-        if request.user.higher_group:
-            request.user.higher_group.add_member(members=[member])
+        if len(groups) > 0:
+            member.group_ids = groups
+        elif request.user and request.user.group_ids and request.user.higher_group:
+            higher_group = request.user.higher_group
+            member.default_group = higher_group
+            higher_group.add_member(members=[member])
+            member.level_id = higher_group.level_id
+        member.save()
+        # if request.user.higher_group:
+        #     request.user.higher_group.add_member(members=[member])
         response = {"id": str(member.id), "name": member.get_full_name()}
         return HTTPResponse(response)
 
@@ -71,10 +74,10 @@ class MemberEndpoint(Endpoint):
             return HTTPResponse({"No such member found !"})
         level = Level.safe_get(data.get('level_id'))
         groups = Group.objects.filter(id__in=data.get('group_ids', []))
-        if data.get('first_name', False):
-            member.name.first = data.get('first_name')
-        if data.get('middle_name', False):
-            member.name.middle = data.get('middle_name')
+        if data.get('name', False):
+            member.name = Name(**data.get('name', {}))
+        if data.get('address', False):
+            member.address = Address(**data.get('address', {}))
         if data.get('last_name', False):
             member.name.last = data.get('last_name')
 
@@ -134,28 +137,7 @@ class MemberEndpoint(Endpoint):
         member = Member.safe_get(member_id)
         if not member:
             return HTTPResponse({"No such member found !"})
-        response = {
-            "id": str(member.id),
-            "name": member.get_full_name(),
-            "mobile_no": member.mobile_no,
-            "address": member.address,
-            "job": member.job,
-            "age": member.age,
-            "gender": member.gender,
-            "email": member.email,
-            "qualification": member.qualification,
-            "is_active": member.is_active,
-            "is_admin": member.is_admin,
-            "is_member_already": member.is_member_already,
-            "blood_group": member.blood_group,
-            "dob": datetime.strftime(member.dob, "%d/%m/%Y"),
-            "level_id": str(member.level_id.id) if member.level_id else "",
-            "level_no": member.level_id.level_no if member.level_id else "",
-            "level_title": member.level_id.title if member.level_id else "",
-            "group_id": str(member.group_id.id) if member.group_id else "",
-            "group_title": member.group_id.title if member.group_id else "",
-            "image": member.image.read() if member.image else ""
-        }
+        response = MemberSerializer(member, context={"request": request}).data
         return HTTPResponse(response)
 
     def delete(self, request, member_id=None):

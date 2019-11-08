@@ -19,6 +19,7 @@ class GroupEndpoint(Endpoint):
         parent_group = Group.safe_get(data.get('parent_group_id'))
         group = Group()
         group.title = data.get('title', '')
+        group.admin_ids = [request.user.to_dbref()]
         if level:
             group.level_id = level.to_dbref()
         elif request.user and request.user.level_id:
@@ -37,7 +38,9 @@ class GroupEndpoint(Endpoint):
                     return HTTPResponse({"Error": admin.name.first + " is already an admin of a group !!"})
                 admin.is_admin = True
                 admin.save()
-            group.admin_ids = [admin.to_dbref for admin in admins]
+                group.admin_ids.append(admin.to_dbref)
+        if request.data.get("image", None):
+            group.image.put(request.data.get("image"), encoding='utf-8')
         group.created_at = datetime.utcnow()
         group.created_by = user.to_dbref() if user.id else None
         group.save()
@@ -66,9 +69,11 @@ class GroupEndpoint(Endpoint):
                     return HTTPResponse({"Error": admin.name.first + " is already an admin of a group !!"})
                 admin.is_admin = True
                 admin.save()
-            group.admin_ids = [admin.to_dbref for admin in admins]
+                group.append(admin.to_dbref)
         if parent_group:
             group.parent_group_id = parent_group.to_dbref()
+        if request.data.get("image", None):
+            group.image.replace(request.data.get("image"), encoding='utf-8')
         group.updated_at = datetime.utcnow()
         group.updated_by = user.to_dbref() if user.id else None
         group.save()
@@ -121,10 +126,10 @@ class GroupEndpoint(Endpoint):
             "level_id": str(group.level_id.id) if group.level_id else "",
             "level_no": group.level_id.level_no,
             "level_title": group.level_id.title,
-            "admin_id": str(group.admin_id.id) if group.admin_id else "",
-            "admin_name": group.admin_id.get_full_name() if group.admin_id else '',
+            "admin_ids":  [str(admin_id.id) for admin_id in group.admin_ids],
             "parent_group_id": str(group.parent_group_id.id) if group.parent_group_id else "",
-            "parent_group_name": group.parent_group_id.title if group.parent_group_id else ""
+            "parent_group_name": group.parent_group_id.title if group.parent_group_id else "",
+            "member_ids": [str(member_id.id) for member_id in group.member_ids]
         }
         return HTTPResponse(response)
 

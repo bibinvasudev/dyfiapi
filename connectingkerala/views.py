@@ -6,6 +6,7 @@ import jwt
 from core.response import HTTPResponse
 from rest_framework import viewsets
 from rest_framework import status
+from api.serializers.member_serializers import MemberSerializer
 
 
 class LoginView(viewsets.GenericViewSet):
@@ -53,6 +54,6 @@ class LoginView(viewsets.GenericViewSet):
                 data.setdefault("aud", "kerala_aud")
 
                 token = jwt.encode(payload=data, algorithm='HS256', key='')
-                response = {"token": token}
+                response = {"token": token, "user_details": MemberSerializer(members[0], context={"request": request}).data}
                 return HTTPResponse(response)
         return HTTPResponse({"Not authorised"}, status=status.HTTP_401_UNAUTHORIZED)
