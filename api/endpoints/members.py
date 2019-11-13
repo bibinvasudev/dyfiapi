@@ -58,7 +58,7 @@ class MemberEndpoint(Endpoint):
         elif request.user and request.user.group_ids and request.user.higher_group:
             higher_group = request.user.higher_group
             member.default_group = higher_group
-            higher_group.add_member(members=[member])
+            higher_group.add_member(members=[member], active=False)
             member.level_id = higher_group.level_id
         member.save()
         # if request.user.higher_group:
