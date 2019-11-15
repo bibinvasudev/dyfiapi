@@ -93,7 +93,7 @@ class GroupEndpoint(Endpoint):
         for group in groups:
             members = group.member_ids
             active_count = len([m for m in members if m.is_active])
-            inactive_count = len(members) - len(active_count)
+            inactive_count = len(members) - active_count
             group_data = {"id": str(group.id),
                           "title": group.title,
                           "level_title": group.level_id.title,
