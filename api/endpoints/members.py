@@ -12,7 +12,7 @@ from core.response import HTTPResponse
 from core.pagination import MediumSizePagination
 from members.models import Name
 from members.models import Address
-from api.serializers.member_serializers import MemberSerializer
+from api.serializers.member_serializers import MemberSerializer, MemberSimpleSerializer
 
 
 class MembersViewSet(viewsets.ModelViewSet):
@@ -127,10 +127,7 @@ class MemberEndpoint(Endpoint):
                 query |= Q(**{qp: request.query_params.get(qp)})
 
         members = Member.objects.filter(query)
-        response = []
-        for member in members:
-            response.append({"id": str(member.id), "name": member.get_full_name(), "is_active": member.is_active,
-                             "is_admin": member.is_admin, "image": member.image.read() if member.image else ""})
+        response = MemberSimpleSerializer(members, many=True, context={"request": request}).data
         return HTTPResponse(response)
 
     def retrieve(self, request, member_id=None):

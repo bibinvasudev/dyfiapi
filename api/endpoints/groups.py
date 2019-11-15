@@ -92,12 +92,12 @@ class GroupEndpoint(Endpoint):
             groups = Group.objects.all()
         for group in groups:
             members = group.member_ids
-            inactive = [m for m in members if m.default_group]
-            active_count = len(members) - len(inactive)
+            active_count = len([m for m in members if m.is_active])
+            inactive_count = len(members) - len(active_count)
             group_data = {"id": str(group.id),
                           "title": group.title,
                           "level_title": group.level_id.title,
-                          "members_count": {"total": len(members), "active": active_count, "inactive": len(inactive)},
+                          "members_count": {"total": len(members), "active": active_count, "inactive": inactive_count},
                           "hierarchy": group.get_hierarchy()}
             response.append(group_data)
         return HTTPResponse(response)

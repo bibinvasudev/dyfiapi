@@ -25,8 +25,28 @@ class MemberSerializer(serializers.EmbeddedDocumentSerializer):
 
     class Meta:
         model = Member
-        fields = ('mobile_no', 'dob', 'name', 'gender', 'blood_group', 'qualification', 'job', 'email', 'age',
+        fields = ('id', 'mobile_no', 'dob', 'name', 'gender', 'blood_group', 'qualification', 'job', 'email', 'age',
                   'address', 'group_ids', 'level_id', 'is_admin', 'is_active', 'address', "image")
 
     def get_group_ids(self, obj):
         return [str(group.id) for group in obj.group_ids]
+
+    def get_image(self, obj):
+        return obj.image.read() if obj.image else ""
+
+
+class MemberSimpleSerializer(serializers.EmbeddedDocumentSerializer):
+
+    name = NameSerializer()
+    address = AddressSerializer()
+    group_ids = serializers.serializers.SerializerMethodField()
+
+    class Meta:
+        model = Member
+        fields = ('id', 'mobile_no', 'name', 'address', 'group_ids', 'is_admin', 'is_active', "image")
+
+    def get_group_ids(self, obj):
+        return [str(group.id) for group in obj.group_ids]
+
+    def get_image(self, obj):
+        return obj.image.read() if obj.image else ""
