@@ -55,11 +55,13 @@ class MemberEndpoint(Endpoint):
         member.save()
         if len(groups) > 0:
             member.group_ids = groups
-        elif request.user and request.user.group_ids and request.user.higher_group:
-            higher_group = request.user.higher_group
-            member.default_group = higher_group
-            higher_group.add_member(members=[member], active=False)
+            higher_group = sorted(groups, key=lambda g: g.level_id.level_no)[-1]
             member.level_id = higher_group.level_id
+        # elif request.user and request.user.group_ids and request.user.higher_group:
+        #     higher_group = request.user.higher_group
+        #     member.default_group = higher_group
+        #     higher_group.add_member(members=[member], active=False)
+        #     member.level_id = higher_group.level_id
         member.save()
         # if request.user.higher_group:
         #     request.user.higher_group.add_member(members=[member])
@@ -175,6 +177,26 @@ class MemberEndpoint(Endpoint):
         if user and not user.image:
             return HTTPResponse({"Please upload the image!"})
         return HTTPResponse({"data": user.image.read()})
+
+    def add_group(self, request, member_id):
+        member = Member.safe_get(member_id)
+        if not member:
+            return HTTPResponse({"No such member found !"})
+        group = Group.safe_get(request.data.get("group_id"))
+        if group:
+            member.modify(add_to_set__groups=group)
+            member.save()
+        return self.retrieve(request, member_id=member_id)
+
+    def remove_group(self, request, member_id):
+        member = Member.safe_get(member_id)
+        if not member:
+            return HTTPResponse({"No such member found !"})
+        group = Group.safe_get(request.data.get("group_id"))
+        if group:
+            member.modify(pull__groups=group)
+            member.save()
+        return self.retrieve(request, member_id=member_id)
 
 
 class ExportDataEndpoint(Endpoint):

@@ -27,7 +27,7 @@ class Group(Document, CustomBaseDocument):
                 member.group_ids = []
             if self not in member.group_ids:
                 member.group_ids.append(self.to_dbref())
-                member.is_active = active
+                # member.is_active = active
             member.default_group = None
             member.save()
 
