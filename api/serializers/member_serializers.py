@@ -22,6 +22,7 @@ class MemberSerializer(serializers.EmbeddedDocumentSerializer):
     name = NameSerializer()
     address = AddressSerializer()
     group_ids = serializers.serializers.SerializerMethodField()
+    image = serializers.serializers.SerializerMethodField()
 
     class Meta:
         model = Member
@@ -40,6 +41,7 @@ class MemberSimpleSerializer(serializers.EmbeddedDocumentSerializer):
     name = NameSerializer()
     address = AddressSerializer()
     group_ids = serializers.serializers.SerializerMethodField()
+    image = serializers.serializers.SerializerMethodField()
 
     class Meta:
         model = Member

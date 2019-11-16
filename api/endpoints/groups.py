@@ -5,6 +5,7 @@ from levels.models import Level
 from members.models import Member
 from core.endpoint import Endpoint
 from core.response import HTTPResponse
+from api.serializers.group_serializers import GroupSerializer
 
 
 class GroupEndpoint(Endpoint):
@@ -47,7 +48,7 @@ class GroupEndpoint(Endpoint):
         if request.user and hasattr(request.user, "id"):
             group.add_member(members=[request.user])
             group.add_member(members=admins)
-        response = {"id": str(group.id), "title": group.title}
+        response = GroupSerializer(group, context={"request": request}).data
         return HTTPResponse(response)
 
     def update(self, request, group_id=None):
@@ -80,26 +81,16 @@ class GroupEndpoint(Endpoint):
         if len(members) > 0:
             group.add_member(members=members)
             group.add_member(members=admins)
-        response = {"id": str(group.id), "title": group.title}
+        response = GroupSerializer(group, context={"request": request}).data
         return HTTPResponse(response)
 
     def list(self, request, *args, **kwargs):
-        response = []
         groups = []
         if request.user and request.user.is_admin:
             groups = Group.objects.filter(created_by=request.user.id)
         if request.user and request.user.is_superuser:
             groups = Group.objects.all()
-        for group in groups:
-            members = group.member_ids
-            active_count = len([m for m in members if m.is_active])
-            inactive_count = len(members) - active_count
-            group_data = {"id": str(group.id),
-                          "title": group.title,
-                          "level_title": group.level_id.title,
-                          "members_count": {"total": len(members), "active": active_count, "inactive": inactive_count},
-                          "hierarchy": group.get_hierarchy()}
-            response.append(group_data)
+        response = GroupSerializer(groups, many=True, context={"request": request})
         return HTTPResponse(response)
 
     def get_my_groups(self, request, *args, **kwargs):
@@ -120,17 +111,7 @@ class GroupEndpoint(Endpoint):
         group = Group.safe_get(group_id)
         if not group:
             return HTTPResponse({"No such group found !"})
-        response = {
-            "id": str(group.id),
-            "title": group.title,
-            "level_id": str(group.level_id.id) if group.level_id else "",
-            "level_no": group.level_id.level_no,
-            "level_title": group.level_id.title,
-            "admin_ids":  [str(admin_id.id) for admin_id in group.admin_ids],
-            "parent_group_id": str(group.parent_group_id.id) if group.parent_group_id else "",
-            "parent_group_name": group.parent_group_id.title if group.parent_group_id else "",
-            "member_ids": [str(member_id.id) for member_id in group.member_ids]
-        }
+        response = GroupSerializer(group, context={"request": request})
         return HTTPResponse(response)
 
     def delete(self, request, group_id=None):
