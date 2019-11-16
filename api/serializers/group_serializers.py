@@ -30,7 +30,7 @@ class GroupSerializer(serializers.EmbeddedDocumentSerializer):
         return [str(member.id) for member in obj.member_ids]
 
     def get_parent_group_name(self, obj):
-        return obj.parent_group_id.tittle if obj.parent_group_id else ""
+        return obj.parent_group_id.title if obj.parent_group_id else ""
 
     def get_image(self, obj):
         return obj.image.read() if obj.image else ""
