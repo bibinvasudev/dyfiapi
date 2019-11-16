@@ -14,7 +14,7 @@ class GroupSerializer(serializers.EmbeddedDocumentSerializer):
 
     class Meta:
         model = Group
-        fields = ('id', 'title', 'level_id', 'level_no', 'level_title', 'admin_ids', 'member_ids', 'parent_group_name'
+        fields = ('id', 'title', 'level_id', 'level_no', 'level_title', 'admin_ids', 'member_ids', 'parent_group_name',
                   'hierarchy', 'members_count', 'image')
 
     def get_level_no(self, obj):
