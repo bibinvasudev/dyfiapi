@@ -66,11 +66,11 @@ class GroupEndpoint(Endpoint):
             group.level_id = level.to_dbref()
         if len(admins) > 0:
             for admin in admins:
-                if admin.is_admin:
-                    return HTTPResponse({"Error": admin.name.first + " is already an admin of a group !!"})
+                # if admin.is_admin:
+                #     return HTTPResponse({"Error": admin.name.first + " is already an admin of a group !!"})
                 admin.is_admin = True
                 admin.save()
-                group.append(admin.to_dbref)
+                group.modify(add_to_set__admin_ids=admin.id)
         if parent_group:
             group.parent_group_id = parent_group.to_dbref()
         if request.data.get("image", None):
