@@ -90,7 +90,7 @@ class GroupEndpoint(Endpoint):
             groups = Group.objects.filter(created_by=request.user.id)
         if request.user and request.user.is_superuser:
             groups = Group.objects.all()
-        response = GroupSerializer(groups, many=True, context={"request": request})
+        response = GroupSerializer(groups, many=True, context={"request": request}).data
         return HTTPResponse(response)
 
     def get_my_groups(self, request, *args, **kwargs):
@@ -111,7 +111,7 @@ class GroupEndpoint(Endpoint):
         group = Group.safe_get(group_id)
         if not group:
             return HTTPResponse({"No such group found !"})
-        response = GroupSerializer(group, context={"request": request})
+        response = GroupSerializer(group, context={"request": request}).data
         return HTTPResponse(response)
 
     def delete(self, request, group_id=None):
