@@ -1,3 +1,4 @@
+import datetime
 from rest_framework_mongoengine import serializers
 from members.models import Member
 from members.models import Name
@@ -21,6 +22,7 @@ class MemberSerializer(serializers.EmbeddedDocumentSerializer):
 
     name = NameSerializer()
     address = AddressSerializer()
+    dob = serializers.serializers.SerializerMethodField()
     group_ids = serializers.serializers.SerializerMethodField()
     image = serializers.serializers.SerializerMethodField()
 
@@ -34,6 +36,9 @@ class MemberSerializer(serializers.EmbeddedDocumentSerializer):
 
     def get_image(self, obj):
         return obj.image.read() if obj.image else ""
+
+    def get_dob(self, obj):
+        datetime.datetime.strftime(obj.dob, "%d/%m/%Y")
 
 
 class MemberSimpleSerializer(serializers.EmbeddedDocumentSerializer):
