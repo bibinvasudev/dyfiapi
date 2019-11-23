@@ -122,3 +122,29 @@ class GroupEndpoint(Endpoint):
         response = {
         }
         return HTTPResponse(response)
+
+    def add_admin(self, request, group_id=None):
+        group = Group.safe_get(group_id)
+        if not group:
+            return HTTPResponse({"No such group found !"})
+
+        member = Member.safe_get(request.data.get("member_id"))
+        if not member:
+            return HTTPResponse({"No such member found !"})
+
+        group.modify(add_to_set__admin_ids=member.id)
+        response = GroupSerializer(group, context={"request": request}).data
+        return HTTPResponse(response)
+
+    def remove_admin(self, request, group_id=None):
+        group = Group.safe_get(group_id)
+        if not group:
+            return HTTPResponse({"No such group found !"})
+
+        member = Member.safe_get(request.data.get("member_id"))
+        if not member:
+            return HTTPResponse({"No such member found !"})
+
+        group.modify(pull__admin_ids=member.id)
+        response = GroupSerializer(group, context={"request": request}).data
+        return HTTPResponse(response)

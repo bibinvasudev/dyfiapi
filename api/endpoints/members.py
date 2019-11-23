@@ -87,7 +87,6 @@ class MemberEndpoint(Endpoint):
             member.image.replace(request.data.get("image"), encoding='utf-8')
 
         member.mobile_no = data.get('mobile_no', member.mobile_no)
-        member.address = data.get("address", member.address)
         member.job = data.get("job", member.job)
         member.email = data.get("email", member.email)
         member.qualification = data.get("qualification", member.qualification)
