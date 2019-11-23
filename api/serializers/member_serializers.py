@@ -38,7 +38,7 @@ class MemberSerializer(serializers.EmbeddedDocumentSerializer):
         return obj.image.read() if obj.image else ""
 
     def get_dob(self, obj):
-        datetime.datetime.strftime(obj.dob, "%d/%m/%Y")
+        return datetime.datetime.strftime(obj.dob, "%d/%m/%Y")
 
 
 class MemberSimpleSerializer(serializers.EmbeddedDocumentSerializer):
