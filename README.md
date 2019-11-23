@@ -206,3 +206,17 @@ Method : PUT
 Request Payload: { “image”: "base64image" }
 
 
+APIs to set Group Admin
+======================
+
+23.Set Group Admin
+Request URL: http://localhost:8000/groups/<group_id>/add_admin
+Method : PUT
+Request Payload: { “member_id”: <member_id> }
+
+24.Set Group Admin
+Request URL: http://localhost:8000/groups/<group_id>/remove_admin
+Method : PUT
+Request Payload: { “member_id”: <member_id> }
+
+
