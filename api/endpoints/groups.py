@@ -133,6 +133,8 @@ class GroupEndpoint(Endpoint):
             return HTTPResponse({"No such member found !"})
 
         group.modify(add_to_set__admin_ids=member.id)
+        member.is_admin = True
+        member.save()
         response = GroupSerializer(group, context={"request": request}).data
         return HTTPResponse(response)
 

@@ -37,6 +37,7 @@ class MemberEndpoint(Endpoint):
         if dob:
             member.dob = datetime.strptime(dob, "%d/%m/%Y")
         member.mobile_no = data.get("mobile_no", None)
+        member.is_admin = data.get("is_admin", False)
         member.job = data.get("job", "")
         member.email = data.get("email", "")
         member.qualification = data.get("qualification", "")
@@ -87,6 +88,7 @@ class MemberEndpoint(Endpoint):
             member.image.replace(request.data.get("image"), encoding='utf-8')
 
         member.mobile_no = data.get('mobile_no', member.mobile_no)
+        member.is_admin = data.get('is_admin', member.is_admin)
         member.job = data.get("job", member.job)
         member.email = data.get("email", member.email)
         member.qualification = data.get("qualification", member.qualification)
