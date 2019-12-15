@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block head_content %}
+    <meta name="HTTP_AUTHORIZATION" content="{{ token }}">
+{% endblock %}
+{% block content %}
+  <div class="row-fluid clearfix">
+    <div class="col-md-10 col-md-offset-1">
+      <div class="row">
+        <div class="col-md-8 col-md-offset-2 col-lg-6 col-lg-offset-3">
+        <input type="hidden" value="{{ token }}" name="auth_token" />
+
+
+
+            <div class="container-fluid" role="main">
+                <div class="row-fluid clearfix">
+                    <div class="col-md-10 col-md-offset-1">
+
+                        <section class="content custom-container proposal-list">
+                            <div class="push-4-bottom push-1-top">
+
+                                <a class="btn btn-primary pull-right" href="{% url 'web:members:members' %}">
+                                    <i class="fa fa-plus-square-o"></i> Members
+                                </a>
+
+                            </div>
+                        </section>
+
+                        <section class="content custom-container proposal-list">
+                            <div class="push-4-bottom push-1-top">
+
+                                <a class="btn btn-primary pull-right" href="{% url 'web:groups:group' %}">
+                                    <i class="fa fa-plus-square-o"></i> Groups
+                                </a>
+
+                            </div>
+                        </section>
+
+                        <section class="content custom-container proposal-list">
+                            <div class="push-4-bottom push-1-top">
+
+                                <a class="btn btn-primary pull-right" href="{% url 'web:levels:level' %}">
+                                    <i class="fa fa-plus-square-o"></i> Levels
+                                </a>
+
+                            </div>
+                        </section>
+
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+      </div>
+
+    </div>
+</div>
+
+
+{% endblock %}

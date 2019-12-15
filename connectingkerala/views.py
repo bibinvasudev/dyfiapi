@@ -7,9 +7,23 @@ from core.response import HTTPResponse
 from rest_framework import viewsets
 from rest_framework import status
 from api.serializers.member_serializers import MemberSerializer
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from django.shortcuts import render
+from django.views.generic.base import View, TemplateView
+from .forms import LoginForm
+from core.auth.authenticate import has_valid_token
 
 
-class LoginView(viewsets.GenericViewSet):
+def base_redirect(request):
+    return HttpResponseRedirect(reverse('web:login'))
+
+
+def home(request):
+    return render(request, "connectingkerala/dashboard.html")
+
+
+class LoginViewSet(viewsets.GenericViewSet):
 
     def admin_login(self, request):
         username_1 = request.data.get('username')
@@ -57,3 +71,45 @@ class LoginView(viewsets.GenericViewSet):
                 response = {"token": token, "user_details": MemberSerializer(members[0], context={"request": request}).data}
                 return HTTPResponse(response)
         return HTTPResponse({"Not authorised"}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class LoginView(TemplateView):
+    form_class = LoginForm
+    template_name = 'registration/login.html'
+
+    def get(self, request, *args, **kwargs):
+        if request.session.get('is_authenticated'):
+            return HttpResponseRedirect('home')
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        messages = []
+
+        if form.is_valid():
+            mobile_no = form.cleaned_data['mobile_no']
+            dob = form.cleaned_data['dob']
+            # import pdb
+            # pdb.set_trace()
+            # mobile_no = request.data.get('mobile_no', None)
+            # dob_str = request.data.get('dob', None)
+            response = {"token": False}
+            if mobile_no and dob:
+                dob_str = datetime.datetime.strftime(dob, "%d/%m/%Y")
+                members = Member.objects.filter(dob=dob, mobile_no=mobile_no)
+                if len(members) > 0:
+                    data = {"mobile_no": mobile_no, "dob": dob_str}
+                    data.setdefault("aud", "kerala_aud")
+
+                    token = jwt.encode(payload=data, algorithm='HS256', key='').decode()
+                    response = {"token": token}
+                    if token is not None:
+                        request.session['is_authenticated'] = True
+                        request.session['token'] = token
+
+                        return HttpResponseRedirect('home')
+                    else:
+                        messages.append('Bad login provided')
+
+        return render(request, self.template_name, {'form': form, 'messages': messages})

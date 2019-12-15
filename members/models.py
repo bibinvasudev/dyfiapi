@@ -53,7 +53,9 @@ class Member(Document, CustomBaseDocument):
     updated_at = DateTimeField()
 
     def get_full_name(self):
-        return {"first": self.name.first, "middle": self.name.middle, "last": self.name.last}
+        if self.name.middle:
+            return '{0} {1} {2}'.format(self.name.first, self.name.middle, self.name.last)
+        return '{0} {1}'.format(self.name.first, self.name.last)
 
     @classmethod
     def get_registered_member(cls, payload):

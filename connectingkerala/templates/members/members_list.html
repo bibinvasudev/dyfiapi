@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block head_content %}
+    <meta name="HTTP_AUTHORIZATION" content="{{ token }}">
+{% endblock %}
+{% block content %}
+    <h2 class="section-title">Members</h2>
+
+        {% for member in members %}
+        <hr/>
+        <div class="row user-proposals">
+            <div class="col-xs-12">
+                <div class="proposal-list-content">
+                    <div class="col-sm-11 col-xs-12">
+                        <p class="col-xs-12  visible-xs">
+                            <span class="pull-left">
+                                <i class="fa fa-comments"></i>2
+                            </span>
+                            <span class="pull-right">
+                                <i class="fa fa-thumbs-up"></i>0
+                            </span>
+                        </p>
+                        <h3 class="proposal--title">
+                            <a href="{% url 'web:members:view_member' member.id %}">{{ forloop.counter }}. {{ member.name.first }} {{ member.name.last }}-(Mobile: {{ member.mobile_no }})</a>
+                        </h3>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+{% endblock %}

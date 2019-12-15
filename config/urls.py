@@ -6,6 +6,10 @@ urlpatterns = [
     url(r'banner_image', ConfigEndpoint.as_view({'get': 'retrieve', 'post': 'create', 'put': 'update'})),
 ]
 
+config_apis = [
+    url(r'banner_image', ConfigEndpoint.as_view({'get': 'retrieve', 'post': 'create', 'put': 'update'})),
+]
+
 # urlpatterns = [
 #     url('/image_upload', common_config_view, name='image_upload'),
 #     url('/success', success, name='success'),

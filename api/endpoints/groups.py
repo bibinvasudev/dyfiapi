@@ -30,7 +30,7 @@ class GroupEndpoint(Endpoint):
             else:
                 return HTTPResponse({"Error": "Cannot create Group !! You are at the lowest level!!"})
         if parent_group:
-            group.parent_group_id = parent_group.id
+            group.parent_group_id = parent_group.to_dbref()
         elif request.user.group_ids and request.user.higher_group:
             group.parent_group_id = request.user.higher_group
         if len(admins) > 0:
