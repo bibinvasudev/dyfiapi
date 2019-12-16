@@ -1,3 +1,4 @@
+from mongoengine import Q
 from django.shortcuts import render
 from django.views.generic.edit import FormView
 from .models import Member
@@ -7,6 +8,9 @@ from .forms import MemberForm, MemberSearchForm
 from django.views.generic.base import TemplateView
 from groups.models import Group
 from levels.models import Level
+from members.models import Address
+from members.models import Name
+from api.serializers.member_serializers import MemberSimpleSerializer
 
 
 class MembersListView(FormView):
@@ -25,41 +29,36 @@ class MemberView(TemplateView):
     def get(self, request, *args, **kwargs):
         form = self.form_class()
         districts = []
-        # mekhalas = []
-        # blocks = []
-        # units = []
         district_level = Level.objects.filter(level_no=4)
         if len(district_level):
             district_level = district_level[0]
             districts = Group.objects.filter(level_id=district_level.id).values_list('id', 'title')
-        # mekhala_level = Level.objects.filter(level_no=3)
-        # if len(mekhala_level):
-        #     mekhala_level = mekhala_level[0]
-        #     mekhalas = Group.objects.filter(level_id=mekhala_level.id).values_list('id', 'title')
-        # block_level = Level.objects.filter(level_no=2)
-        # if len(block_level):
-        #     block_level = block_level[0]
-        #     blocks = Group.objects.filter(level_id=block_level.id).values_list('id', 'title')
-        # unit_level = Level.objects.filter(level_no=1)
-        # if len(unit_level):
-        #     unit_level = unit_level[0]
-        #     units = Group.objects.filter(level_id=unit_level.id).values_list('id', 'title')
         data = {
-            'districts': districts
+            'districts': districts,
+            'members': MemberSimpleSerializer(Member.objects.all(), many=True, context={"request": request}).data
         }
         return render(request, self.template_name, {'form': form, 'data': data})
 
     def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST)
-        messages = []
-        import pdb
-        pdb.set_trace()
-
-        if form.is_valid():
-            opportunity_id = form.cleaned_data['opportunity_id']
-            associate_id = form.cleaned_data['associate_id']
-            messages.append(opportunity_id + ' ' + associate_id)
-
+        member_form = self.form_class(request.POST)
+        if member_form.is_valid():
+            data = member_form.cleaned_data
+            image_data = data.pop('image', "")
+            house = data.pop('house', "")
+            street = data.pop('street', "")
+            city = data.pop('city', "")
+            district = data.pop('district', "")
+            state = data.pop('state', "")
+            pin = data.pop('pin_code', "")
+            first_name = data.pop('first_name', "")
+            last_name = data.pop('last_name', "")
+            group_ids = data.pop('group_ids', [])
+            member = Member(**data)
+            member.name = Name(first=first_name, last=last_name)
+            member.group_ids = [group.to_dbref() for group in Group.objects.filter(id__in=group_ids)]
+            member.address = Address(house=house, street=street, city=city, district=district, state=state, pin_code=pin)
+            member.image.put(image_data, encoding='utf-8')
+            member.save()
         return HttpResponseRedirect(reverse('web:members:add_member'))
 
     @staticmethod
@@ -77,16 +76,33 @@ class MemberSearchView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         form = self.form_class()
-        return render(request, self.template_name, {'form': form})
+        data = {
+            'members': MemberSimpleSerializer(Member.objects.all(), many=True, context={"request": request}).data
+        }
+        return render(request, self.template_name, {'form': form, 'data': data})
 
     def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST)
-        messages = []
+        search_form = self.form_class(request.POST)
+        data = {}
+        if search_form.is_valid():
+            data = search_form.cleaned_data
+        query = Q()
+        for qp in data:
+            if data.get(qp):
+                if qp == "first_name":
+                    query &= Q(name__first=data.get(qp))
+                elif qp == "last_name":
+                    query &= Q(name__last=data.get(qp))
+                elif qp == "group_id":
+                    group = Group.safe_get(data.get(qp))
+                    if group:
+                        query &= Q(group_ids__in=[group.id])
+                else:
+                    query &= Q(**{qp: data.get(qp)})
 
-        if form.is_valid():
-            opportunity_id = form.cleaned_data['opportunity_id']
-            associate_id = form.cleaned_data['associate_id']
-            messages.append(opportunity_id + ' ' + associate_id)
-
-        return render(request, self.template_name, {'form': form, 'messages': messages})
+        members = Member.objects.filter(query)
+        data = {
+            'members': MemberSimpleSerializer(members, many=True, context={"request": request}).data
+        }
+        return render(request, self.template_name, {'form': search_form, 'data': data})
 
